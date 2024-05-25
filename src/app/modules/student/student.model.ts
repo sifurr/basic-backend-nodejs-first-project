@@ -1,20 +1,23 @@
-import { Schema, model } from 'mongoose';
+import { Schema, SchemaType, model } from 'mongoose';
 import {
-  Guardian,
-  LocalGuardian,
-  Student,
-  UserName,
+  StudentModel,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  TUserName,
 } from './student.interface';
 import validator from 'validator';
 
-const userNameSchema = new Schema<UserName>({
+
+
+const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
     trim: true,
     required: [true, 'First name is required'],
     minlength: [1, "First name can't be less than 1 character"],
     maxlength: [20, "First name can't be more than 20 characters"],
-    
+
     // custom validation
     // validate: {
     //   validator: function (value: string) {
@@ -38,11 +41,10 @@ const userNameSchema = new Schema<UserName>({
     //   validator: (value: string) => validator.isAlpha(value),
     //   message: '{VALUE} is not valid',
     // },
-    
   },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: [true, "Father's name is required"],
@@ -75,7 +77,7 @@ const guardianSchema = new Schema<Guardian>({
   },
 });
 
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, "Local guardian's name is required"],
@@ -98,69 +100,120 @@ const localGuardianSchema = new Schema<LocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<Student>({
-  id: {
-    type: String,
-    required: [true, 'Student ID is required'],
-    // unique: true,
-  },
-  name: {
-    type: userNameSchema,
-    required: [true, 'Student name is required'],
-  },
-  gender: {
-    type: String,
-    enum: {
-      values: ['male', 'female', 'other'],
-      message: '{VALUE} is not valid',
+const studentSchema = new Schema<TStudent, StudentModel>(
+  {
+    id: {
+      type: String,
+      required: [true, 'Student ID is required'],
+      // unique: true,
     },
-    required: [true, 'Gender is required'],
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'ID is required'],
+      unique: true,
+      ref: 'User', // this is for referencing with User model
+    },
+
+    
+    name: {
+      type: userNameSchema,
+      required: [true, 'Student name is required'],
+    },
+    gender: {
+      type: String,
+      enum: {
+        values: ['male', 'female', 'other'],
+        message: '{VALUE} is not valid',
+      },
+      required: [true, 'Gender is required'],
+    },
+    dateOfBirth: { type: String },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      // unique: true,
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: '{VALUE} is not correct email',
+      },
+    },
+    contactNo: {
+      type: String,
+      required: [true, 'Contact number is required'],
+    },
+    emergencyContactNo: {
+      type: String,
+      required: [true, 'Emergency contact number is required'],
+    },
+    bloodGroup: {
+      type: String,
+      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    },
+    presentAddress: {
+      type: String,
+      required: [true, 'Present address is required'],
+    },
+    permanentAddress: {
+      type: String,
+      required: [true, 'Permanent address is required'],
+    },
+    guardian: {
+      type: guardianSchema,
+      required: [true, 'Guardian information is required'],
+    },
+    localGuardian: {
+      type: localGuardianSchema,
+      required: [true, 'Local guardian information is required'],
+    },
+    profileImg: { type: String },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  dateOfBirth: { type: String },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    // unique: true,
-    validate: {
-      validator:(value:string)=> validator.isEmail(value),
-      message: '{VALUE} is not correct email' 
-    }
+  {
+    toJSON: {
+      virtuals: true,
+    },
   },
-  contactNo: {
-    type: String,
-    required: [true, 'Contact number is required'],
-  },
-  emergencyContactNo: {
-    type: String,
-    required: [true, 'Emergency contact number is required'],
-  },
-  bloodGroup: {
-    type: String,
-    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-  },
-  presentAddress: {
-    type: String,
-    required: [true, 'Present address is required'],
-  },
-  permanentAddress: {
-    type: String,
-    required: [true, 'Permanent address is required'],
-  },
-  guardian: {
-    type: guardianSchema,
-    required: [true, 'Guardian information is required'],
-  },
-  localGuardian: {
-    type: localGuardianSchema,
-    required: [true, 'Local guardian information is required'],
-  },
-  profileImg: { type: String },
-  isActive: {
-    type: String,
-    enum: ['active', 'blocked'],
-    default: 'active',
-  },
+);
+
+
+// mongoose query middleware
+studentSchema.pre('find', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
 });
 
+studentSchema.pre('findOne', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+// mongoose query middleware
+studentSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
+
+// mongoose virtual
+studentSchema.virtual('fullName').get(function () {
+  return (
+    this.name.firstName + ' ' + this.name.middleName + ' ' + this.name.lastName
+  );
+});
+
+// create a custom static method
+studentSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id: id });
+  return existingUser;
+};
+
+// create a custom instance method
+// studentSchema.methods.isUserExists = async function (id: string) {
+//   const existingUser = await Student.findOne({ id: id });
+//   return existingUser;
+// };
+
 // model
-export const StudentModel = model<Student>('Student', studentSchema);
+export const Student = model<TStudent, StudentModel>('Student', studentSchema);

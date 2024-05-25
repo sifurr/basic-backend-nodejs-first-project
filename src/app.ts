@@ -1,14 +1,17 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { StudentRoutes } from './app/modules/student/student.route';
+import handlerGlobalError from './app/middlewares/globalErrorHandler';
+import notFound from './app/middlewares/notFound';
+import router from './app/routes';
 const app: Application = express();
 
 // middlewares
 app.use(express.json());
 app.use(cors());
 
-// application routes
-app.use('/api/v1/students', StudentRoutes);
+// application route
+app.use('/api/v1', router);
+
 
 // testing
 const getHelloController = (req: Request, res: Response) => {
@@ -17,5 +20,11 @@ const getHelloController = (req: Request, res: Response) => {
 };
 
 app.get('/', getHelloController);
+
+// global error handler
+app.use(handlerGlobalError);
+
+// not found
+app.use(notFound);
 
 export default app;
