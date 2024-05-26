@@ -14,14 +14,14 @@ app.use('/api/v1', router);
 
 
 // testing
-const getHelloController = (req: Request, res: Response) => {
+const test = (req: Request, res: Response) => {
   const hello = 'Hello World!';
   res.send(hello);
 };
 
-app.get('/', getHelloController);
+app.get('/', test);
 
-// global error handler
+// global error handler, use it at the bottom of all all error handler middlewares
 app.use(handlerGlobalError);
 
 // not found
