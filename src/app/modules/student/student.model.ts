@@ -104,13 +104,11 @@ const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: {
       type: String,
-      required: [true, 'Student ID is required'],
-      // unique: true,
+      required: [true, 'Student ID is required'],  
     },
     user: {
       type: Schema.Types.ObjectId,
       required: [true, 'ID is required'],
-      unique: true,
       ref: 'User', // this is for referencing with User model
     },
 
@@ -131,7 +129,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     email: {
       type: String,
       required: [true, 'Email is required'],
-      // unique: true,
+      unique: true,
       validate: {
         validator: (value: string) => validator.isEmail(value),
         message: '{VALUE} is not correct email',
@@ -164,6 +162,10 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     localGuardian: {
       type: localGuardianSchema,
       required: [true, 'Local guardian information is required'],
+    },
+    admissionSemester: {
+      type: Schema.Types.ObjectId, 
+      ref: 'AcademicSemester',
     },
     profileImg: { type: String },
     isDeleted: {

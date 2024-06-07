@@ -22,7 +22,7 @@ export type TUserName = {
   lastName: string;
 };
 
-export type TStudent = {  
+export type TStudent = {
   id: string;
   user: Types.ObjectId;
   password: string;
@@ -37,12 +37,13 @@ export type TStudent = {
   permanentAddress: string;
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
+  admissionSemester: Types.ObjectId;
   profileImg?: string;
   isDeleted: boolean;
 };
 
 // for creating custom static method
-export interface StudentModel extends Model<TStudent>{
+export interface StudentModel extends Model<TStudent> {
   isUserExists(id: string): Promise<TStudent | null>;
 }
 

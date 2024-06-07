@@ -26,5 +26,3 @@ export type TAcademicSemester = {
 export type TAcademicCodeAndSemesterNameMapper = {
   [key: string]: string;
 };
-
-

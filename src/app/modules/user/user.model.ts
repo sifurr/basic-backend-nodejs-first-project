@@ -5,11 +5,14 @@ import bcrypt from 'bcrypt';
 
 const userSchema = new Schema<TUser>(
   {
-    id: { type: String, required: true },
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],
-      maxlength: [20, 'Not more than 20 characters'],
     },
     needsPasswordChange: { type: Boolean, default: true },
     role: {
