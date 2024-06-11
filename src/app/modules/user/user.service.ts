@@ -4,6 +4,7 @@ import { TStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
+import { generateStudentID } from './user.utils';
 
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
@@ -26,6 +27,9 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
   // set automatic generated id instead of manually generated id
   // userData.id = generateStudentID(admissionSemester);
+  if(!admissionSemester){
+    throw new Error("This is an errror");
+  }
 
   userData.id = await generateStudentID(admissionSemester)
 
