@@ -7,8 +7,7 @@ import {
   TUserName,
 } from './student.interface';
 import validator from 'validator';
-
-
+import { string } from 'joi';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -104,7 +103,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: {
       type: String,
-      required: [true, 'Student ID is required'],  
+      required: [true, 'Student ID is required'],
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -112,7 +111,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       ref: 'User', // this is for referencing with User model
     },
 
-    
     name: {
       type: userNameSchema,
       required: [true, 'Student name is required'],
@@ -164,11 +162,11 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Local guardian information is required'],
     },
     admissionSemester: {
-      type: Schema.Types.ObjectId, 
+      type: Schema.Types.ObjectId,
       ref: 'AcademicSemester',
     },
     academicDepartment: {
-      type: Schema.Types.ObjectId, 
+      type: Schema.Types.ObjectId,
       ref: 'AcademicDepartment',
     },
     profileImg: { type: String },
@@ -183,7 +181,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     },
   },
 );
-
 
 // mongoose query middleware
 studentSchema.pre('find', function (next) {
