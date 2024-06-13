@@ -9,6 +9,8 @@ import { generateStudentID } from './user.utils';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 
+
+
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   // create a user object
   const userData: Partial<TUser> = {};
