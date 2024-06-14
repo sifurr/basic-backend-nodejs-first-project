@@ -3,6 +3,7 @@ import { Student } from './student.model';
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { User } from '../user/user.model';
+import { TStudent } from './student.interface';
 
 const getAllStudentsFromDB = async () => {
   const result = await Student.find()
@@ -21,7 +22,7 @@ const getAllStudentsFromDB = async () => {
 const getSingleStudentFromDB = async (id: string) => {
   // const result = await Student.findOne({ id });
   // const result = await Student.aggregate([{ $match: { id: id } }]);
-  const result = await Student.findById(id)
+  const result = await Student.findOne({ id }) // here I have used findOne because I've used my own generated id, not the mongo _id
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -58,7 +59,7 @@ const deleteSingleStudentFromDB = async (id: string) => {
     );
 
     if (!deletedUser) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete user');
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
     }
 
     await session.commitTransaction();
@@ -66,14 +67,52 @@ const deleteSingleStudentFromDB = async (id: string) => {
 
     return deletedStudent;
   } catch (err) {
-
     await session.abortTransaction();
     await session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
   }
+};
+
+const updateStudentInDB = async (id: string, payload: Partial<TStudent>) => {
+  const { name, guardian, localGuardian, ...remainingStudentData } = payload;
+  const modifiedUpdateData: Record<string, unknown> = {
+    ...remainingStudentData,
+  };
+
+  if (name && Object.keys(name).length) {
+    for (const [key, value] of Object.entries(name)) {
+      modifiedUpdateData[`name.${key}`] = value;
+    }
+  }
+
+  if (guardian && Object.keys(guardian).length) {
+    for (const [key, value] of Object.entries(guardian)) {
+      modifiedUpdateData[`guardian.${key}`] = value;
+    }
+  }
+
+  if (localGuardian && Object.keys(localGuardian).length) {
+    for (const [key, value] of Object.entries(localGuardian)) {
+      modifiedUpdateData[`localGuardian.${key}`] = value;
+    }
+  }
+
+  // console.log(modifiedUpdateData);
+
+  const updatedStudent = await Student.findOneAndUpdate(
+    { id },
+    modifiedUpdateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+  return updatedStudent;
 };
 
 export const StudentServices = {
   getAllStudentsFromDB,
   getSingleStudentFromDB,
+  updateStudentInDB,
   deleteSingleStudentFromDB,
 };
