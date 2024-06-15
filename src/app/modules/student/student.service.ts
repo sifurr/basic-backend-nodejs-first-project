@@ -6,7 +6,9 @@ import { User } from '../user/user.model';
 import { TStudent } from './student.interface';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  
+  // console.log('base query', query);
+  const queryObject = { ...query }; // copy the query
+
   // manual way to search
   // {$email: {$regex: query.searchTerm, $options: i}}
   // {$presentAddress: {$regex: query.searchTerm, $options: i}}
@@ -14,6 +16,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
   // dynamic way to search
   // if nothing is provided in as search term then it will be empty string
+  const studentSearchableField = ['email', 'name.firstName', 'presentAddress'];
   let searchTerm = '';
 
   // but if the search term is given then assign the query dynamically to the search term
@@ -21,13 +24,20 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     searchTerm = query?.searchTerm as string;
   }
 
-  const result = await Student.find(
-    {
-      $or: ['email', 'name.firstName', 'presentAddress'].map((field) => ({
-        [field]: { $regex: searchTerm, $options: 'i'}
-      }))
-    }
-  )
+  const searchQuery = Student.find({
+    $or: studentSearchableField.map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    })),
+  });
+
+  // filtering
+  const excludeFields = ['searchTerm'];
+  excludeFields.forEach((item) => delete queryObject[item]);
+
+  // console.log(query, queryObject);
+
+  const result = await searchQuery
+    .find(queryObject)
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
