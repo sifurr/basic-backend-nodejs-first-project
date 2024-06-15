@@ -35,7 +35,7 @@ const userSchema = new Schema<TUser>(
 
 // mongoose document middleware
 // mongoose middleware / hook
-// pre save middleware to has the password using bcrypt
+// pre hook save middleware to hash the password using bcrypt
 userSchema.pre('save', async function (next) {
   // console.log(this, "Pre hook, we will save data");
   const user = this;

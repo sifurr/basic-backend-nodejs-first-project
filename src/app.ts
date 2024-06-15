@@ -15,9 +15,9 @@ app.use('/api/v1', router);
 
 // testing route
 const test = (req: Request, res: Response) => {
-  Promise.reject();
-  // const hello = 'Hello World!';
-  // res.send(hello);
+  // Promise.reject();
+  const hello = 'Hello World!';
+  res.send(hello);
 };
 
 app.get('/', test);

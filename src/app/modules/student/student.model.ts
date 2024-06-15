@@ -104,6 +104,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     id: {
       type: String,
       required: [true, 'Student ID is required'],
+      unique: true,
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -128,10 +129,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: String,
       required: [true, 'Email is required'],
       unique: true,
-      validate: {
-        validator: (value: string) => validator.isEmail(value),
-        message: '{VALUE} is not correct email',
-      },
     },
     contactNo: {
       type: String,

@@ -35,4 +35,4 @@ process.on('uncaughtException', () => {
   process.exit(1); // shutdown the server immediately
 });
 
-console.log(gd);
+
