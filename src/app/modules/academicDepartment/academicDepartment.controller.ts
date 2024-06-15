@@ -6,7 +6,6 @@ import { AcademicDepartmentServices } from './academicDepartment.service';
 const createAcademicDepartment = catchAsync(async (req, res) => {
   const result =
     await AcademicDepartmentServices.createAcademicDepartmentIntoDB(req.body);
-
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

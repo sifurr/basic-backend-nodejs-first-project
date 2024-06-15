@@ -29,9 +29,11 @@ academicDepartmentSchema.pre('save', async function (next) {
   const isDepartmentExist = await AcademicDepartment.findOne({
     name: this.name,
   });
+
   if (isDepartmentExist) {
     throw new AppError(httpStatus.UNPROCESSABLE_ENTITY ,'This department already exists');
   }
+  
   next();
 });
 
