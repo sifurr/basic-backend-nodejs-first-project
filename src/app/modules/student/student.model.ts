@@ -1,4 +1,4 @@
-import { Schema, SchemaType, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import {
   StudentModel,
   TGuardian,
@@ -6,8 +6,6 @@ import {
   TStudent,
   TUserName,
 } from './student.interface';
-import validator from 'validator';
-import { string } from 'joi';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -180,6 +178,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 );
 
 // mongoose query middleware
+// filter out deleted students
 studentSchema.pre('find', function (next) {
   this.find({ isDeleted: { $ne: true } });
   next();
