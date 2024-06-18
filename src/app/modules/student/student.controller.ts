@@ -4,7 +4,6 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 
 const getAllStudents = catchAsync(async (req, res) => {
-  // console.log(req.query)
   const result = await StudentServices.getAllStudentsFromDB(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -16,8 +15,8 @@ const getAllStudents = catchAsync(async (req, res) => {
 
 // usage of higher order function
 const getSingleStudent = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await StudentServices.getSingleStudentFromDB(studentId);
+  const { id } = req.params;
+  const result = await StudentServices.getSingleStudentFromDB(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -27,8 +26,8 @@ const getSingleStudent = catchAsync(async (req, res) => {
 });
 
 const deleteSingleStudent = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await StudentServices.deleteSingleStudentFromDB(studentId);
+  const { id } = req.params;
+  const result = await StudentServices.deleteSingleStudentFromDB(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -39,9 +38,9 @@ const deleteSingleStudent = catchAsync(async (req, res) => {
 });
 
 const updateStudent = catchAsync(async (req, res) => {
-  const { studentId } = req.params;
-  const {student} = req.body;
-  const result = await StudentServices.updateStudentInDB(studentId, student);
+  const { id } = req.params;
+  const { student } = req.body;
+  const result = await StudentServices.updateStudentInDB(id, student);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

@@ -101,7 +101,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 const getSingleStudentFromDB = async (id: string) => {
   // const result = await Student.findOne({ id });
   // const result = await Student.aggregate([{ $match: { id: id } }]);
-  const result = await Student.findOne({ id }) // here I have used findOne because I've used my own generated id, not the mongo _id
+  const result = await Student.findById(id) // here I have used findOne because I've used my own generated id, not the mongo _id
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -121,8 +121,8 @@ const deleteSingleStudentFromDB = async (id: string) => {
     session.startTransaction();
 
     // const deletedStudent = await Student.updateOne({ id }, { isDeleted: true });
-    const deletedStudent = await Student.findOneAndUpdate(
-      { id },
+    const deletedStudent = await Student.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -131,8 +131,11 @@ const deleteSingleStudentFromDB = async (id: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
     }
 
-    const deletedUser = await User.findOneAndUpdate(
-      { id },
+    // get user  _id  from delteted student
+    const userId = deletedStudent.user;
+
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );
@@ -176,10 +179,8 @@ const updateStudentInDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  // console.log(modifiedUpdateData);
-
-  const updatedStudent = await Student.findOneAndUpdate(
-    { id },
+  const updatedStudent = await Student.findByIdAndUpdate(
+    id,
     modifiedUpdateData,
     {
       new: true,
